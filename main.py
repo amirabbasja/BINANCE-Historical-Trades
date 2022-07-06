@@ -42,8 +42,51 @@ def get_downloaded_trades(Path, direction):
     else:
         return -1
 
+def getDiscontinuity(path: string, symbol):
+    """
+    Some times the downloaded historical tarnsactions files are not continuous.
+    This function returns the range that the historical transactions are missing.
 
-client = Client(api_key = "gcJLtOs6tZYTOBEyIYY0JZBDagmFMkc5SY5T8R792cCUgBn7YCLfG7pOJZG3J36x")
+    Arguments
+    ---------
+    path: The location of histocial transactions file.
+    symbol: The symbol of the desired asset.
+
+    Returns
+    -------
+    A list of tuples containing the start and end of the discontinuity. The returned 
+    numbers are tardeIDs.
+    
+    Note* The file names should be in the following format:
+    "HistoricalTrades_{symbol}_(\d+)____(\d+).pkl"
+    
+    """
+    from collections import OrderedDict
+    files = os.listdir(path)
+
+    dis = {}
+
+    for file in files:
+        z = re.match(f"HistoricalTrades_{symbol}_(\d+)____(\d+).pkl", file)
+        if z != None:
+            dis[z.group(1)] = z.group(2)
+
+    dis = OrderedDict(sorted(dis.items()))
+    a = dis.items()
+
+    out = []
+    temp = [0, 0]
+
+    for i, val in enumerate(a):
+        if i != 0 and temp[1] != val[0]:
+            out.append([temp[1] , val[0]])
+        temp = val
+
+    return out
+
+client = Client(
+    api_key = "gcJLtOs6tZYTOBEyIYY0JZBDagmFMkc5SY5T8R792cCUgBn7YCLfG7pOJZG3J36x",
+    api_secret = 'EYyaqoqRyPxozdDQQmlL7xQiHaqDIxgGAav68UoYAznTAOI6darEG132kavhI3Vh')
 
 DATAPATH = "../../Data/HistoricalTrades" # The folder to get and restore t from
 SYMBOL = "BTCUSDT" 
