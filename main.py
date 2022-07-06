@@ -2,34 +2,54 @@ from http import client
 import string
 import pandas as pd
 from binance import Client
+import re
 from tqdm import tqdm
 import os
 
+"""
+This application downloads the historical transactions from biannce and saves them to a pickle file.
+By default, each file contains 1m transactions, but for any reason if you want to change that, you 
+can change the range of tqdm function in the main loop, each loop contains 1k trasnactions (The Biannce's
+limit).
+The saved files will be in the following format:
+f"/HistoricalTrades_{symbol}_{startId}____{endId}.pkl"
+"""
 
 
 def save_dataframe(df:pd.DataFrame, name:string):
-    # Writing the dataframe to excel file. The name string should have an xlsx extension
+    """
+    Writing the dataframe to a pickle file.
+
+    Arguments
+    ---------
+    df: The dataframe to be saved.
+    name: The location of the file (Extension included).
+    """
 
     #Make a historical tades directory
     exists = os.path.exists(DATAPATH)
     if not exists:
         os.makedirs(DATAPATH)
 
-    with pd.ExcelWriter(name) as writer:
-        df.to_excel(writer, index = False)
+    df.to_pickle(name)
 
 def get_downloaded_trades(Path, direction):
-    # this function gets the downloaded trades and 
-    # The direction variable specifies the direction of getting the data
-    # If it equals to "forward", the latest data will be gathered 
-    # but if it equals backward, the historic data will be gathered starting
-    # from the most aged trade
-    # Also remember that the file names has to be in the following format:
-    # f"/HistoricalTrades_{symbol}_{startId}____{endId}.xlsx"  
+    """
+    This function gets the downloaded trades
+    Arguments
+    ---------
+    Path: The location of the downloaded trades.
+    direction: str:The direction variable specifies the direction of getting the data
+    If it equals to "forward", the latest data will be gathered but if it equals 
+    backward, the historic data will be gathered starting from the most aged trade.
+
+    Note* Remember that the file names has to be in the following format:
+    f"/HistoricalTrades_{symbol}_{startId}____{endId}.pkl" 
+    """
+ 
     ids = []
     for files  in os.listdir(Path):
         ls = files.replace(".xlsx","").split("_")
-        # print(ls[2] + " => " + str(ls[6]))
         ids.append(int(ls[2]))
         ids.append(int(ls[6]))
     
@@ -88,7 +108,7 @@ client = Client(
     api_key = "gcJLtOs6tZYTOBEyIYY0JZBDagmFMkc5SY5T8R792cCUgBn7YCLfG7pOJZG3J36x",
     api_secret = 'EYyaqoqRyPxozdDQQmlL7xQiHaqDIxgGAav68UoYAznTAOI6darEG132kavhI3Vh')
 
-DATAPATH = "../../Data/HistoricalTrades" # The folder to get and restore t from
+DATAPATH = "../../Data/HistoricalTrades" # The folder to get and load transactions from
 SYMBOL = "BTCUSDT" 
 DIRECTION = "backward"
 
@@ -112,7 +132,7 @@ if(DIRECTION == "backward"):
             
             startId = Batch[0]["id"]
         
-        save_dataframe(trades, DATAPATH + f"/HistoricalTrades_{SYMBOL}_{startId}____{endId}.xlsx")
+        save_dataframe(trades, DATAPATH + f"/HistoricalTrades_{SYMBOL}_{startId}____{endId}.pkl")
         endId = trades.iloc[0,0]
         lastTradeId = endId
 
