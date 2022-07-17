@@ -48,13 +48,15 @@ def get_downloaded_trades(Path, direction):
     """
  
     ids = []
-    for files  in os.listdir(Path):
-        ls = files.replace(".xlsx","").split("_")
-        ids.append(int(ls[2]))
-        ids.append(int(ls[6]))
+    for files in os.listdir(Path):
+        z = re.match(f"HistoricalTrades_{SYMBOL}_(\d+)____(\d+).pkl", files)
+        if z != None:
+            ls = files.replace(".xlsx","").split("_")
+            ids.append(int(ls[2]))
+            ids.append(int(ls[6]))
     
     
-    if(len(os.listdir(Path)) != 0):
+    if(len(os.listdir(Path)) != 0 and len(ids) != 0):
         if(direction == "backward"):
             return min(ids)
         elif(direction == "forward"):
@@ -131,7 +133,9 @@ if(DIRECTION == "backward"):
             trades = pd.concat([pd.DataFrame(Batch, columns =["id","time","price","qty","isBuyerMaker","isBestMatch"]), trades], ignore_index = True)
             
             startId = Batch[0]["id"]
+            print(startId)
         
+        print("saved")
         save_dataframe(trades, DATAPATH + f"/HistoricalTrades_{SYMBOL}_{startId}____{endId}.pkl")
         endId = trades.iloc[0,0]
         lastTradeId = endId
