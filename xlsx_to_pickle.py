@@ -7,10 +7,12 @@ import os
 # speed of loading of the file in other scripts 
 # Note: files has to be in this format: HistoricalTrades_BTCUSDT_{endId}____{startId}.xlsx
 
-PATH = "../../Data/HistoricalTrades/"
+# PATH = "../../Data/HistoricalTrades/"
+PATH = "C:/Users/Spino.shop/Desktop/Trading/Data/HistoricalCandles/"
 
 files = os.listdir(PATH)
 for file in files:
+    print(file)
     if file.endswith(".xlsx"):
         df = pd.read_excel(PATH + file)
         df.to_pickle(os.path.abspath(PATH) +"\\"+ file.replace(".xlsx", ".pickle"),)

@@ -133,10 +133,8 @@ if(DIRECTION == "backward"):
             trades = pd.concat([pd.DataFrame(Batch, columns =["id","time","price","qty","isBuyerMaker","isBestMatch"]), trades], ignore_index = True)
             
             startId = Batch[0]["id"]
-            print(startId)
         
-        print("saved")
-        save_dataframe(trades, DATAPATH + f"/HistoricalTrades_{SYMBOL}_{startId}____{endId}.pkl")
+        save_dataframe(trades, DATAPATH + f"/HistoricalTrades_{SYMBOL}_{trades.id.iloc[0]}____{trades.id.iloc[-1]}.pkl")
         endId = trades.iloc[0,0]
         lastTradeId = endId
 
